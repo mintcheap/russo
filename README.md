@@ -5,12 +5,14 @@ Flashcards for learning basic Russian from European Portuguese (pt-PT), built as
 **Live app:** https://mintcheap.github.io/russo/
 
 ## Contents
-- 7 themes, ~200 cards: Cyrillic alphabet, first words (as a child), travelling in Russia, supermarket, restaurant, meeting people, city transport.
+- 11 decks, ~300 cards.
+  - From class (lessons of 17 and 21 July): letters and sounds (letter groups, Ъ and Ь, полка/полька, unstressed О→А and Е→И), first conversation, international words, numbers 1–12.
+  - Themes: Cyrillic alphabet, first words (as a child), travelling in Russia, supermarket, restaurant, meeting people, city transport.
 - Flashcards: tap to flip, swipe right = "Sei", left = "Não sei". Direction RU→PT, PT→RU or mixed.
 - Spaced repetition (simplified SM-2) with a daily review and a cap on new words per day.
 - Recorded Russian audio for every card (normal and slow).
 - Quiz: multiple choice, and typing (accents optional; Russian answers accepted in Cyrillic or in the transliteration shown).
-- Portuguese-friendly transliteration: "ch" as in *chave* (ш), "j" as in *já* (ж), unstressed о written as "a", stressed vowel in bold.
+- Portuguese-friendly transliteration: "ch" as in *chave* (ш), "j" as in *já* (ж), unstressed о written as "a" and unstressed е as "i", stressed vowel in bold.
 - Works offline after the first visit (audio is cached as you hear it).
 
 ## Install on iPhone
