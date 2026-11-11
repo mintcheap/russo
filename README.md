@@ -5,8 +5,9 @@ Flashcards for learning basic Russian from European Portuguese (pt-PT), built as
 **Live app:** https://mintcheap.github.io/russo/
 
 ## Contents
-- 11 decks, ~300 cards.
-  - From class (lessons of 17 and 21 July): letters and sounds (letter groups, Ъ and Ь, полка/полька, unstressed О→А and Е→И), first conversation, international words, numbers 1–12.
+- 5 exercise sets from the 21 July lesson (~320 exercises, 10 per round): pictures («Что это?», yes/no, «… или …?»), listening (полка/полька, numbers), sounds and stress (tap the stressed syllable, vowel reduction, letter groups, Ъ/Ь), mini-dialogues, family and possession (у меня есть…, Чья это машина?, build the sentence).
+- 12 decks, ~340 cards.
+  - From class (lessons of 17 and 21 July): letters and sounds (letter groups, Ъ and Ь, полка/полька, unstressed О→А and Е→И), first conversation, international words, numbers 1–12, family and possession.
   - Themes: Cyrillic alphabet, first words (as a child), travelling in Russia, supermarket, restaurant, meeting people, city transport.
 - Flashcards: tap to flip, swipe right = "Sei", left = "Não sei". Direction RU→PT, PT→RU or mixed.
 - Spaced repetition (simplified SM-2) with a daily review and a cap on new words per day.

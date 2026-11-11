@@ -198,6 +198,18 @@ main {
 .feedback { border-radius: 14px; padding: 12px 14px; font-weight: 500; }
 .feedback.ok { background: var(--good-soft); color: var(--good); }
 .feedback.no { background: var(--miss-soft); color: var(--miss); }
+.feedback .why { color: var(--ink); font-weight: 400; font-size: 14px; margin-top: 4px; opacity: .85; }
+.prompt .pic { font-size: 60px; line-height: 1.15; }
+.prompt .q.qtext { font-size: clamp(22px, 6.5vw, 30px); }
+.prompt .bigplay { justify-self: center; margin-top: 6px; }
+.tile.ex { background: var(--cobalt-soft); }
+.syls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.syl { min-width: 56px; min-height: 56px; padding: 0 14px; font-size: 24px; font-weight: 700; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); }
+.syl.right, .wtile.right { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+.syl.wrong { border-color: var(--miss); background: var(--miss-soft); color: var(--miss); }
+.built { min-height: 64px; border: 1.5px dashed var(--line); border-radius: 14px; padding: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.wpool { display: flex; flex-wrap: wrap; gap: 8px; }
+.wtile { border: 1.5px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 12px; font-size: 18px; font-weight: 600; min-height: 44px; }
 
 /* Results & misc */
 .result { text-align: center; display: grid; gap: 14px; padding: 18px 0; }
@@ -391,6 +403,38 @@ const DECKS = [
 де'сять | 10 (dez)
 оди'ннадцать | 11 (onze) | | adInatsat'
 двена'дцать | 12 (doze) | | dvinAtsat'
+`},
+{ id: "family", section: "aula", glyph: "Чья?", title: "Família e posse", scene: "Dizer o que tens e de quem é: у меня есть…, Чья это машина?, его e её.", data: `
+у меня' есть... | eu tenho...
+у тебя' есть... | tu tens...
+у него' есть... | ele tem...
+у неё есть... | ela tem...
+у нас есть... | nós temos...
+у вас есть... | vocês têm... / o senhor tem...
+что у вас есть? | o que é que vocês têm?
+кто и'ли что у неё есть? | quem ou o que é que ela tem?
+у меня' есть де'вушка | tenho namorada
+у меня' есть роди'тели | tenho pais
+у нас есть па'па, ма'ма, ба'бушка, тётя | temos pai, mãe, avó e tia
+де'вушка | namorada / rapariga
+де'ти | filhos / crianças
+де'вочка | menina
+ма'льчик | menino
+роди'тели | pais
+сестра' | irmã
+тётя | tia
+маши'на | carro
+компью'тер | computador
+его' | dele | его' компью'тер — o computador dele
+её | dela | её маши'на — o carro dela
+чей? / чья? | de quem? | чей компью'тер? · чья маши'на?
+чья э'то маши'на? | de quem é este carro?
+э'то её маши'на | é o carro dela
+э'то его' компью'тер | é o computador dele
+я и брат | eu e o meu irmão
+сейча'с | agora
+мно'го | muito
+ты сейча'с мно'го рабо'таешь | agora trabalhas muito
 `},
 { id: "kids", glyph: "Мама", title: "Primeiras palavras", scene: "És uma criança pequena a aprender as tuas primeiras palavras.", data: `
 ма'ма | mãe
@@ -588,7 +632,7 @@ function translitWord(tok) {
   const nV = lo.filter(c => VOW.includes(c)).length;
   const hasSt = ch.some((x, i) => x.st || lo[i] === "ё") || nV === 1;
   const letters = lo.filter(c => /[а-яё]/.test(c)).join("");
-  const ogo = /(ого|его)$/.test(letters) && letters.length > 3 && !/много$/.test(letters);
+  const ogo = /(ого|его)$/.test(letters) && letters.length >= 3 && !/много$/.test(letters);
   let out = "";
   ch.forEach((x, i) => {
     const c = lo[i], prev = lo[i - 1] || "", next = lo[i + 1] || "";
@@ -628,6 +672,142 @@ DECKS.forEach(d => {
     return card;
   });
 });
+
+// ---------- Exercises (from the lesson of 21 July) ----------
+// Item types: pick (choose an option; opts[0] is the right one), stress (tap the stressed syllable), build (order the words).
+// Russian text uses ' after the stressed vowel. `say` plays with the item, `sayAfter` after answering.
+const findCard = ru => { const k = strip(ru); const all = Object.values(CARDS); return all.find(c => c.deck === "intl" && strip(c.ru) === k) || all.find(c => strip(c.ru) === k); };
+const PICS = [["🥂","шампа'нское"],["📰","журна'л"],["🎬","фильм"],["🌷","тюльпа'н"],["💉","инъе'кция"],["🎪","цирк"],["🏟️","стадио'н"],["📻","ра'дио"],["🏃⚽","футболи'ст",1],["🍋","лимо'н"],["🍷","вино'"],["🎸","гита'ра"],["🌹","ро'за"],["🧑‍⚕️","до'ктор",1],["🍲","суп"],["🌳","парк"],["☕","ко'фе"],["🍌","бана'н"],["🛥️","я'хта"],["🗼","Пари'ж"],["🗽","Нью-Йо'рк"],["🎭","теа'тр"],["🚀","раке'та"],["🏫","шко'ла"],["👔","шеф",1],["🎵","но'та"],["🗺️","ка'рта"],["🧑🏆","актёр",1]];
+function poolPics() {
+  const n = PICS.length, items = [];
+  PICS.forEach(([pic, w, person], i) => {
+    const c = findCard(w), card = c && c.id, pt = c ? c.pt : "";
+    const ds = [7, 12, 19].map(k => PICS[(i + k) % n][1]);
+    items.push({ t: "pick", pic, ask: "Responde à pergunta", q: person ? "Кто э'то?" : "Что э'то?", say: person ? "Кто это?" : "Что это?",
+      opts: [w, ...ds].map(x => `Э'то ${x}.`), sayAfter: `Это ${strip(w)}.`, why: pt, card });
+    const other = PICS[(i + 3) % n][1], yes = i % 2 === 0, asked = yes ? w : other;
+    items.push({ t: "pick", pic, ask: "Responde à pergunta", q: `Э'то ${asked}?`, say: `Это ${strip(asked)}?`,
+      opts: yes ? [`Да, э'то ${w}.`, `Нет, э'то не ${w}.`] : [`Нет, э'то не ${asked}.`, `Да, э'то ${asked}.`],
+      sayAfter: yes ? `Да, это ${strip(w)}.` : `Нет, это не ${strip(asked)}.`, why: yes ? pt : `Na imagem: ${w} (${pt}).`, card });
+    const alt = PICS[(i + 5) % n][1], pair = i % 2 ? [alt, w] : [w, alt];
+    items.push({ t: "pick", pic, ask: "Responde à pergunta", q: `Э'то ${pair[0]} и'ли ${pair[1]}?`, say: `Это ${strip(pair[0])} или ${strip(pair[1])}?`,
+      opts: [`Э'то ${w}.`, `Э'то ${alt}.`, `Да, э'то ${w}.`], sayAfter: `Это ${strip(w)}.`, why: "Com «и'ли» (ou) responde-se só com a opção certa, sem «да».", card });
+  });
+  PICS.filter((p, i) => p[2] || i % 6 === 0).forEach(([pic, w, person]) => items.push({ t: "pick", pic, ask: "Qual é a pergunta certa?",
+    opts: person ? ["Кто э'то?", "Что э'то?"] : ["Что э'то?", "Кто э'то?"], sayAfter: person ? "Кто это?" : "Что это?", why: "«Кто?» para pessoas, «Что?» para coisas." }));
+  return items;
+}
+const NUMW = ["оди'н","два","три","четы'ре","пять","шесть","семь","во'семь","де'вять","де'сять","оди'ннадцать","двена'дцать"];
+const PAIRS = [["по'лка","prateleira","по'лька","polca / polaca"],["ел","(ele) comeu","ель","abeto"],["брат","irmão","брать","levar, pegar"],["кто","quem","что","o quê"]];
+function poolListen() {
+  const items = [];
+  NUMW.forEach((w, i) => { const n = i + 1; const opts = [...new Set([n, n % 12 + 1, (n + 4) % 12 + 1, (n + 7) % 12 + 1])].map(String);
+    items.push({ t: "pick", listen: 1, ru: false, ask: "Ouve: que número é?", say: `Это номер ${strip(w)}.`, opts, why: `«Э'то но'мер ${w}.»`, card: "nums:" + strip(w) }); });
+  PAIRS.forEach(([a, pa, b, pb]) => { [[a, pa, b], [b, pb, a]].forEach(([w, pt, o]) =>
+    items.push({ t: "pick", listen: 1, ask: "O que ouviste?", say: strip(w), opts: [w, o], why: `${w} — ${pt}`, card: findCard(w)?.id })); });
+  const intl = DECKS.find(d => d.id === "intl").cards, n = intl.length;
+  intl.forEach((c, i) => items.push({ t: "pick", listen: 1, ask: "O que ouviste?", say: c.say, opts: [c.ru, ...[1, 13, 29].map(k => intl[(i + k) % n].ru)], why: `${c.ru} — ${c.pt}`, card: c.id }));
+  return items;
+}
+const PRON = [["Москва'","масква'","москва'"],["пока'","пака'","пока'"],["хорошо'","харашо'","хорошо'","хараша'"],["метро'","митро'","метро'"],["теа'тр","тиа'тр","теа'тр"],["вода'","вада'","вода'"],["до'ктор","до'ктар","до'ктор"],["секу'нда","сику'нда","секу'нда"],["ко'фе","ко'фе","ка'фе"],["но'та","но'та","на'та"],["дире'ктор","дире'ктар","дире'ктор"],["шко'ла","шко'ла","шка'ла"],["литерату'ра","литирату'ра","литерату'ра"],["Петербу'рг","питирбу'рк","петербу'рг"]];
+const LGROUPS = [["amigos verdadeiros","АКМОТ","parecem e soam como em português"],["amigos falsos","СРВХНУЕ","parecem letras latinas, mas soam diferente"],["amigos novos","БЛГПДФЗИЭ","formas novas para sons conhecidos"],["amigos estrangeiros","ЖЧЦШЩЙЮЯЁЫЬЪ","sons e sinais sem letra própria em português"]];
+const SIGNS = [["ин_е'кция","ъ","injeção"],["под_е'зд","ъ","entrada do prédio"],["по'л_ка","ь","polca / polaca"],["по'л_ка","","prateleira"],["брат_","ь","levar, pegar"],["брат_","","irmão"],["ел_","ь","abeto"],["ел_","","(ele) comeu"],["сол_","ь","sal"],["сем_","ь","sete"],["пят_","ь","cinco"],["ш_ко'ла","","escola"]];
+function syllables(word) {
+  const ch = []; for (const c of word) { if (c === "'") { if (ch.length) ch[ch.length - 1].st = true; } else ch.push({ c, st: c === "ё" }); }
+  const vi = ch.map((x, i) => VOW.includes(x.c.toLowerCase()) ? i : -1).filter(i => i >= 0);
+  if (vi.length < 2) return [{ s: ch.map(x => x.c).join(""), st: true }];
+  const cuts = [];
+  for (let k = 0; k < vi.length - 1; k++) {
+    const a = vi[k], b = vi[k + 1]; let cut = a + 1;
+    if (b - a - 1 >= 2 && "лмнрй".includes(ch[a + 1].c.toLowerCase())) cut = a + 2;
+    while (cut < b && "ьъ".includes(ch[cut].c)) cut++;
+    cuts.push(cut);
+  }
+  const out = []; let start = 0; cuts.forEach(c => { out.push(ch.slice(start, c)); start = c; }); out.push(ch.slice(start));
+  return out.map(seg => ({ s: seg.map(x => x.c).join(""), st: seg.some(x => x.st) }));
+}
+function poolSounds() {
+  const items = [];
+  [...DECKS.find(d => d.id === "intl").cards, ...DECKS.find(d => d.id === "sounds").cards].forEach(c => {
+    if (!/^[^\s-]+$/.test(c.ru) || (c.ru.match(/'/g) || []).length !== 1) return;
+    if (syllables(c.ru).length < 2) return;
+    items.push({ t: "stress", word: c.ru, ask: "Toca na sílaba tónica", say: c.say, why: c.pt, card: c.id });
+  });
+  PRON.forEach(([w, ...opts]) => items.push({ t: "pick", ask: "Como se pronuncia?", q: w, say: strip(w), opts: opts.map(o => `[${o}]`),
+    why: "O «о» átono soa a «а», o «е» átono soa quase a «и». A vogal tónica mantém o seu som." }));
+  LGROUPS.forEach(([g, letters, desc]) => [...letters].forEach(L => items.push({ t: "pick", big: 1, ask: "A que grupo pertence esta letra?", q: L + " " + L.toLowerCase(), ru: false,
+    opts: [g, ...LGROUPS.filter(x => x[0] !== g).map(x => x[0])], why: `${g}: ${desc}.` })));
+  SIGNS.forEach(([w, sign, pt]) => { const full = w.replace("_", sign);
+    items.push({ t: "pick", ask: `Que sinal falta? (${pt})`, q: w.replace("_", "…"), ru: false, opts: sign === "ъ" ? ["ъ", "ь", "nada"] : sign === "ь" ? ["ь", "ъ", "nada"] : ["nada", "ь", "ъ"],
+      sayAfter: strip(full), why: `${full} — ${pt}` }); });
+  return items;
+}
+const DIALOGS = [
+  ["— Спаси'бо!\n— …", "Пожа'луйста!", "Извини'те!", "Приве'т!", "«Пожа'луйста» responde a «спаси'бо»: de nada."],
+  ["— Извини'те!\n— …", "Ничего'!", "Пожа'луйста!", "Пока'!", "«Ничего'!» = não faz mal, está tudo bem."],
+  ["— Приве'т! Как дела'?\n— …", "Спаси'бо, хорошо'!", "Ничего'!", "До свида'ния!", "Como estás? — Bem, obrigado!"],
+  ["— Пока', ма'ма!\n— …", "Пока'!", "Здра'вствуйте!", "Спаси'бо!", "«Пока'!» = adeus, tchau (informal)."],
+  ["— Здра'вствуйте!\n— …", "Здра'вствуйте!", "Пока'!", "Ничего'!", "Ao cumprimento formal responde-se igual."],
+  ["— До свида'ния!\n— …", "До свида'ния!", "Приве'т!", "Как дела'?", "Despedida formal: responde-se igual."],
+  ["— Приве'т! Я Марк.\n— …", "Приве'т! Я Ле'ра.", "Пожа'луйста!", "Э'то Марк?", "Apresentar-se: «Я + nome»."],
+  ["— Что зна'чит «Приве'т»?\n— …", "«Olá!»", "«Adeus!»", "«Obrigado!»", "«Что зна'чит…?» = o que significa…?"],
+  ["— Как по-ру'сски «táxi»?\n— …", "Такси'.", "Ничего'.", "Пока'.", "«Как по-ру'сски…?» = como se diz em russo…?"],
+  ["— Кто э'то?\n— …", "Э'то актёр.", "Э'то журна'л.", "Да, э'то шеф.", "«Кто?» pergunta por uma pessoa.", "🧑🏆"],
+  ["— Что э'то?\n— …", "Э'то журна'л.", "Э'то актёр.", "Нет.", "«Что?» pergunta por uma coisa.", "📰"],
+  ["— Э'то я'хта и'ли журна'л?\n— …", "Э'то я'хта.", "Да, э'то я'хта.", "Э'то и'ли.", "Com «и'ли» responde-se só com a opção certa.", "🛥️"],
+  ["— Э'то футболи'ст?\n— …", "Да, э'то футболи'ст.", "Пожа'луйста.", "Э'то и футболи'ст.", "Sim, é um futebolista.", "🏃⚽"],
+  ["— Э'то гита'ра?\n— …", "Нет, э'то не гита'ра.", "Да, э'то гита'ра.", "Нет, э'то гита'ра.", "Na imagem está uma rosa: «Нет, э'то не гита'ра».", "🌹"],
+];
+const SITUATIONS = [
+  ["Pisaste o pé de alguém. O que dizes?", "Извини'те!", "Спаси'бо!", "Пожа'луйста!"],
+  ["Alguém te agradece. O que respondes?", "Пожа'луйста!", "Спаси'бо!", "Ничего'!"],
+  ["Encontras o diretor da empresa de manhã.", "Здра'вствуйте!", "Приве'т!", "Пока'!"],
+  ["Encontras um amigo na rua.", "Приве'т!", "До свида'ния!", "Ничего'!"],
+  ["Despedes-te de um professor.", "До свида'ния!", "Пока'!", "Приве'т!"],
+  ["Despedes-te da tua mãe.", "Пока'!", "Здра'вствуйте!", "Пожа'луйста!"],
+  ["Pedes desculpa a um amigo.", "Извини'!", "Ничего'!", "Спаси'бо!"],
+];
+function poolDialog() {
+  const items = DIALOGS.map(([q, a, b, c, why, pic]) => ({ t: "pick", pic, ask: "Completa o diálogo", q, say: strip(q.split("\n")[0].replace("— ", "")),
+    opts: [a, b, c], sayAfter: /[а-яё]/i.test(a) ? strip(a) : "", why }));
+  SITUATIONS.forEach(([ask, a, b, c]) => items.push({ t: "pick", ask, opts: [a, b, c], sayAfter: strip(a), why: "" }));
+  return items;
+}
+const FAM_PICK = [
+  ["👩🚗", "Чья э'то маши'на?", "Э'то её маши'на.", "Э'то его' маши'на.", "У неё маши'на.", "Ela → «её» (dela)."],
+  ["👨💻", "Чей э'то компью'тер?", "Э'то его' компью'тер.", "Э'то её компью'тер.", "Э'то он компью'тер.", "Ele → «его'» (dele)."],
+  ["👩🚗", "Кто и'ли что у неё есть?", "У неё есть маши'на.", "У него' есть маши'на.", "Э'то её есть маши'на.", "Ela tem um carro."],
+  ["👨💻", "Что у него' есть?", "У него' есть компью'тер.", "У неё есть компью'тер.", "Его' есть компью'тер.", "Ele tem um computador."],
+  ["👨‍👩‍👧", "Что у вас есть?", "У нас есть па'па, ма'ма, ба'бушка, тётя.", "У меня' есть де'вушка.", "Э'то на'ша ма'ма есть.", "Temos pai, mãe, avó e tia."],
+  ["👧👦", "Кто э'то?", "Э'то де'ти: де'вочка и ма'льчик.", "Э'то роди'тели.", "Э'то де'вушка.", "Crianças: uma menina e um menino."],
+  ["👫", "Кто у тебя' есть?", "У меня' есть де'вушка.", "У меня' есть де'ти.", "У неё есть де'вушка.", "Tenho namorada."],
+  ["👨‍👩", "Кто у тебя' есть?", "У меня' есть роди'тели.", "У меня' есть де'вочка.", "Э'то её роди'тели.", "Tenho pais."],
+];
+const FAM_WORD = [["dele", "его'", "её", "он"], ["dela", "её", "его'", "она'"], ["eu tenho…", "у меня' есть…", "у нас есть…", "у неё есть…"], ["nós temos…", "у нас есть…", "у вас есть…", "у меня' есть…"],
+  ["ela tem…", "у неё есть…", "у него' есть…", "её есть…"], ["agora", "сейча'с", "мно'го", "сего'дня"], ["muito", "мно'го", "сейча'с", "о'чень прия'тно"], ["menina", "де'вочка", "ма'льчик", "де'вушка"],
+  ["menino", "ма'льчик", "де'вочка", "брат"], ["pais", "роди'тели", "де'ти", "па'па"], ["namorada", "де'вушка", "де'вочка", "сестра'"], ["filhos / crianças", "де'ти", "роди'тели", "де'вочки"]];
+const FAM_GENDER = [["… э'то маши'на?", "Чья", "Чей", "Чья э'то маши'на?", "маши'на é feminino → «чья»."], ["… э'то компью'тер?", "Чей", "Чья", "Чей э'то компью'тер?", "компью'тер é masculino → «чей»."]];
+const FAM_BUILD = [
+  ["Ela tem um carro.", "У неё есть маши'на.", "него'"], ["De quem é este carro?", "Чья э'то маши'на?", "Чей"], ["É o carro dela.", "Э'то её маши'на.", "его'"],
+  ["É o computador dele.", "Э'то его' компью'тер.", "её"], ["Tenho namorada.", "У меня' есть де'вушка.", "нас"], ["Tenho pais.", "У меня' есть роди'тели.", "де'ти"],
+  ["Temos pai, mãe, avó e tia.", "У нас есть па'па, ма'ма, ба'бушка, тётя.", "меня'"], ["O que é que vocês têm?", "Что у вас есть?", "Кто"],
+  ["Agora trabalhas muito.", "Ты сейча'с мно'го рабо'таешь.", "о'чень"], ["Eu e o meu irmão.", "Я и брат.", "и'ли"], ["Quem ou o que é que ela tem?", "Кто и'ли что у неё есть?", "него'"],
+];
+function poolFamily() {
+  const items = FAM_PICK.map(([pic, q, a, b, c, why]) => ({ t: "pick", pic, ask: "Responde à pergunta", q, say: strip(q), opts: [a, b, c], sayAfter: strip(a), why, card: findCard(a.replace(/\.$/, ""))?.id }));
+  FAM_WORD.forEach(([pt, a, b, c]) => items.push({ t: "pick", ask: `Como se diz «${pt}»?`, opts: [a, b, c], sayAfter: strip(a).replace(/…/g, ""), why: "", card: findCard(a.replace("…", "..."))?.id }));
+  FAM_GENDER.forEach(([q, a, b, full, why]) => items.push({ t: "pick", ask: "Чей ou чья?", q, opts: [a, b], sayAfter: strip(full), why }));
+  FAM_BUILD.forEach(([pt, target, extra]) => items.push({ t: "build", ask: pt, target, extra, say: strip(target), why: "" }));
+  return items;
+}
+const EXERCISES = [
+  { id: "pics", glyph: "Что?", title: "Что это? Imagens", scene: "Vês uma imagem e respondes: «Это…», «Да, это…», «Нет, это не…», «… или …?».", pool: poolPics },
+  { id: "listen", glyph: "Слух", title: "Ouvir", scene: "Ouves e escolhes o que foi dito: полка ou полька? брат ou брать? Que número?", pool: poolListen },
+  { id: "sounds", glyph: "О→А", title: "Sons e acento", scene: "Sílaba tónica, vogais átonas, grupos de letras e os sinais Ъ e Ь.", pool: poolSounds },
+  { id: "dialog", glyph: "— Да!", title: "Diálogos", scene: "Completa os mini-diálogos da aula e escolhe o que dizer em cada situação.", pool: poolDialog },
+  { id: "family", glyph: "Чья?", title: "Família e posse", scene: "У меня есть…, Чья это машина?, его e её. Escolhe respostas e constrói frases.", pool: poolFamily },
+];
+EXERCISES.forEach(e => { e.items = e.pool(); });
 
 // ---------- State & persistence ----------
 const dayNum = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000); };
@@ -770,11 +950,11 @@ function meter(seen, known, total) {
   return `<div class="meter" aria-hidden="true"><i class="m1" style="width:${k}%"></i><i class="m2" style="width:${s}%"></i></div>`;
 }
 function setHeader(title, showBack) {
-  $title.innerHTML = title; $back.hidden = !showBack; $set.hidden = view.name === "settings" || view.name === "study" || view.name === "quiz";
+  $title.innerHTML = title; $back.hidden = !showBack; $set.hidden = view.name === "settings" || view.name === "study" || view.name === "quiz" || view.name === "ex";
 }
 
 function render() {
-  const fn = { home: renderHome, deck: renderDeck, study: renderStudy, quiz: renderQuiz, done: renderDone, settings: renderSettings }[view.name];
+  const fn = { home: renderHome, deck: renderDeck, study: renderStudy, quiz: renderQuiz, ex: renderEx, done: renderDone, settings: renderSettings }[view.name];
   fn();
 }
 
@@ -798,6 +978,13 @@ function renderHome() {
       <div class="sub">${esc(sub)}</div>
       <button class="btn light" id="revAll" ${queue ? "" : "disabled"}>${queue ? "Começar sessão" : "Volta amanhã"}</button>
     </section>
+    <div class="section-label">Exercícios</div>
+    <div class="decks">${EXERCISES.map(e => { const best = (S.ex || {})[e.id];
+      return `<button class="deck" data-ex="${e.id}">
+        <div class="tile ex"><span class="s${Math.min(6, e.glyph.length)}">${esc(e.glyph)}</span></div>
+        <div style="min-width:0"><h3>${esc(e.title)}</h3><p>${esc(e.scene)}</p>
+          <div class="stats"><span>${e.items.length} exercícios · 10 por ronda</span>${best != null ? `<span class="due-pill">melhor: ${best}/10</span>` : ""}</div>
+        </div></button>`; }).join("")}</div>
     ${[["Das aulas", DECKS.filter(d => d.section === "aula")], ["Temas", DECKS.filter(d => d.section !== "aula")]].map(([label, list]) => `
     <div class="section-label">${label}</div>
     <div class="decks">${list.map(d => {
@@ -815,6 +1002,7 @@ function renderHome() {
   </div>`;
   document.getElementById("revAll").onclick = () => startStudy(buildReview(DECKS), "Revisão de hoje", true);
   $app.querySelectorAll("[data-deck]").forEach(b => b.onclick = () => go({ name: "deck", id: b.dataset.deck }));
+  $app.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => startEx(b.dataset.ex));
 }
 
 // ---------- Deck ----------
@@ -993,6 +1181,86 @@ function renderQuiz() {
   };
 }
 
+// ---------- Exercises ----------
+const exById = id => EXERCISES.find(e => e.id === id);
+function startEx(id, push = true) {
+  const set = exById(id);
+  const items = shuffle(set.items).slice(0, 10).map(it => ({ ...it,
+    order: it.opts ? shuffle(it.opts.map((_, k) => k)) : null,
+    tiles: it.t === "build" ? shuffle([...it.target.split(" "), ...(it.extra ? [it.extra] : [])].map((w, k) => ({ w, k }))) : null }));
+  go({ name: "ex", set: id, items, i: 0, right: 0, answered: null, built: [] }, push);
+}
+const ruHtml = s => `<span lang="ru">${esc(acc(s))}</span>`;
+function renderEx() {
+  const v = view, set = exById(v.set), it = v.items[v.i], a = v.answered;
+  setHeader(esc(set.title), true);
+  const optLabel = o => it.ru === false ? esc(o) : ruHtml(o);
+  let prompt = "";
+  if (it.pic) prompt += `<div class="pic" aria-hidden="true">${it.pic}</div>`;
+  if (it.t === "build") prompt += `<div class="ask">Traduz para russo</div><div class="q qtext">${esc(it.ask)}</div>`;
+  else if (it.ask) prompt += `<div class="ask">${esc(it.ask)}</div>`;
+  if (it.q) prompt += `<div class="q ${it.big ? "letter" : "qtext"}" ${it.ru === false && !it.big ? "" : 'lang="ru"'}>${esc(acc(it.q)).replace(/\n/g, "<br>")}</div>`;
+  if (it.listen) prompt += `<button class="btn primary bigplay" id="play">${SPK} Ouvir</button>`;
+  let body = "";
+  if (it.t === "pick") {
+    body = `<div class="options">${it.order.map(k => {
+      let cls = ""; if (a) { if (k === 0) cls = "right"; else if (k === a.pick) cls = "wrong"; }
+      return `<button class="opt ${cls}" data-k="${k}" ${a ? "disabled" : ""}>${optLabel(it.opts[k])}</button>`;
+    }).join("")}</div>`;
+  } else if (it.t === "stress") {
+    const syl = syllables(it.word);
+    body = `<div class="syls" lang="ru">${syl.map((s, k) => {
+      let cls = ""; if (a) { if (s.st) cls = "right"; else if (k === a.pick) cls = "wrong"; }
+      return `<button class="syl ${cls}" data-s="${k}" ${a ? "disabled" : ""}>${esc(s.s)}</button>`;
+    }).join("")}</div>`;
+  } else {
+    const used = new Set(v.built);
+    body = `<div class="built" id="built" lang="ru" aria-label="A tua frase">${v.built.length ? v.built.map(k => {
+      const t = it.tiles.find(x => x.k === k); return `<button class="wtile" data-rm="${k}" ${a ? "disabled" : ""}>${esc(acc(t.w))}</button>`; }).join("") : `<span class="note">Toca nas palavras pela ordem certa</span>`}</div>
+      ${a ? "" : `<div class="wpool" lang="ru">${it.tiles.filter(t => !used.has(t.k)).map(t => `<button class="wtile" data-add="${t.k}">${esc(acc(t.w))}</button>`).join("")}</div>
+      <button class="btn primary" id="check" ${v.built.length ? "" : "disabled"}>Verificar</button>`}`;
+  }
+  let fb = "";
+  if (a) {
+    const right = it.t === "pick" ? optLabel(it.opts[0]) : it.t === "stress" ? ruHtml(it.word) : ruHtml(it.target);
+    const tr = it.t === "stress" ? ` <span class="note">(${translit(it.word)})</span>` : "";
+    fb = `<div class="feedback ${a.ok ? "ok" : "no"}">${a.ok ? "Certo!" : "Resposta certa:"} ${a.ok && it.t === "pick" ? "" : right + tr}${it.why ? `<div class="why">${esc(acc(it.why))}</div>` : ""}</div>
+      <button class="btn primary" id="next">${v.i + 1 < v.items.length ? "Seguinte" : "Ver resultado"}</button>`;
+  }
+  const hasSay = it.t === "build" || it.t === "stress" ? !!a : (it.say || (a && it.sayAfter));
+  $app.innerHTML = `<div class="view">
+    <div class="progress"><span>${v.i + 1}/${v.items.length}</span>${meter(v.i, v.i, v.items.length)}<span>${v.right} certas</span></div>
+    <div class="prompt">${prompt}${hasSay && !it.listen ? `<button class="iconbtn say" id="sp" aria-label="Ouvir">${SPK}</button>` : ""}</div>
+    ${body}${fb}
+  </div>`;
+  const play = () => speak(a && it.sayAfter ? it.sayAfter : it.say);
+  const sp = document.getElementById("sp"); if (sp) sp.onclick = play;
+  const pl = document.getElementById("play"); if (pl) pl.onclick = () => speak(it.say);
+  if (it.listen && !a && !v.played) { v.played = true; speak(it.say); }
+  const settle = (ok, extra) => {
+    v.answered = { ok, ...extra }; if (ok) v.right++;
+    if (it.card && CARDS[it.card]) grade(it.card, ok ? 2 : 0);
+    const after = it.sayAfter || (it.t !== "pick" ? it.say : "");
+    if (after) speak(after);
+    render(); const n = document.getElementById("next"); n && n.focus();
+  };
+  $app.querySelectorAll("[data-k]").forEach(b => b.onclick = () => settle(+b.dataset.k === 0, { pick: +b.dataset.k }));
+  $app.querySelectorAll("[data-s]").forEach(b => b.onclick = () => { const k = +b.dataset.s; settle(syllables(it.word)[k].st, { pick: k }); });
+  $app.querySelectorAll("[data-add]").forEach(b => b.onclick = () => { v.built.push(+b.dataset.add); render(); });
+  $app.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { v.built = v.built.filter(k => k !== +b.dataset.rm); render(); });
+  const ch = document.getElementById("check");
+  if (ch) ch.onclick = () => { const said = v.built.map(k => it.tiles.find(x => x.k === k).w).join(" "); settle(strip(said) === strip(it.target), {}); };
+  const n = document.getElementById("next");
+  if (n) n.onclick = () => {
+    v.i++; v.answered = null; v.built = []; v.played = false;
+    if (v.i >= v.items.length) {
+      S.ex = S.ex || {}; S.ex[set.id] = Math.max(S.ex[set.id] || 0, v.right); save();
+      view = { name: "done", title: set.title, kind: "ex", right: v.right, total: v.items.length, set: set.id };
+    }
+    render(); window.scrollTo(0, 0);
+  };
+}
+
 // ---------- Done ----------
 function renderDone() {
   const v = view;
@@ -1007,10 +1275,10 @@ function renderDone() {
     inner = `<h2>${v.right}/${v.total}</h2><p class="note">${pct >= 80 ? "Отлично! Excelente." : pct >= 50 ? "Nada mal. Continua a praticar." : "Ainda a aprender. Experimenta estudar os cartões primeiro."}</p>`;
   }
   $app.innerHTML = `<div class="view"><div class="result">${inner}
-    ${v.kind === "quiz" ? `<button class="btn ghost" id="again">Outro quiz</button>` : ""}
+    ${v.kind !== "study" ? `<button class="btn ghost" id="again">${v.kind === "ex" ? "Outra ronda" : "Outro quiz"}</button>` : ""}
     <button class="btn primary" id="home">Voltar ao início</button></div></div>`;
   document.getElementById("home").onclick = () => { navStack = []; view = { name: "home" }; render(); };
-  const ag = document.getElementById("again"); if (ag) ag.onclick = () => startQuiz(deckById(v.deck), v.mode, false);
+  const ag = document.getElementById("again"); if (ag) ag.onclick = () => v.kind === "ex" ? startEx(v.set, false) : startQuiz(deckById(v.deck), v.mode, false);
 }
 
 // ---------- Settings ----------
