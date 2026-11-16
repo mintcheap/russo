@@ -436,6 +436,27 @@ const DECKS = [
 мно'го | muito
 ты сейча'с мно'го рабо'таешь | agora trabalhas muito
 `},
+{ id: "places", section: "aula", glyph: "Пляж", title: "Lugares e coisas", scene: "Praia, ilha, oceano e montanhas, a mota e o carro, e os lados direito e esquerdo.", data: `
+пра'вый | direito (lado) | пра'вая рука' — a mão direita
+ле'вый | esquerdo (lado) | ле'вая рука' — a mão esquerda
+спра'ва | à direita | спра'ва маши'на — à direita está um carro
+сле'ва | à esquerda | сле'ва мотоци'кл — à esquerda está uma mota
+океа'н | oceano
+Ме'ксика | México
+пляж | praia
+о'стров | ilha
+го'ры | montanhas | uma montanha: гора'
+мотоци'кл | mota
+маши'на | carro
+су'ши | sushi
+ро'бот | robô
+шокола'д | chocolate
+часы' | relógio | palavra no plural: э'то часы'
+спра'ва маши'на, сле'ва мотоци'кл | à direita um carro, à esquerda uma mota
+э'то о'стров и'ли пляж? | é uma ilha ou uma praia?
+в Ме'ксике есть океа'н и го'ры | no México há oceano e montanhas
+у меня' есть часы' | tenho um relógio
+`},
 { id: "kids", glyph: "Мама", title: "Primeiras palavras", scene: "És uma criança pequena a aprender as tuas primeiras palavras.", data: `
 ма'ма | mãe
 па'па | pai
@@ -644,7 +665,7 @@ function translitWord(tok) {
     else if (c === "ё") m = (!prev || VOW.includes(prev) || "ъь".includes(prev) || !/[а-яё]/.test(prev)) ? "io" : "io";
     else if (c === "о") m = (hasSt && !stressed && nV > 1) ? "a" : "o";
     else if (c === "ь") m = VOW.includes(next) ? "" : "'";
-    else if (c === "с") m = (VOW.includes(prev) && VOW.includes(next)) ? "ss" : "s";
+    else if (c === "с") m = (prev && next && VOW.includes(prev) && VOW.includes(next)) ? "ss" : "s";
     else if (c === "г") m = (ogo && lo.slice(i + 1).join("").replace(/[^а-яё]/g, "") === "о") ? "v" : ("еиёяю".includes(next) ? "gu" : "g");
     else m = TR[c] ?? c;
     if (x.c !== c && m) m = m[0].toUpperCase() + m.slice(1);
@@ -677,8 +698,8 @@ DECKS.forEach(d => {
 // Item types: pick (choose an option; opts[0] is the right one), stress (tap the stressed syllable), build (order the words).
 // Russian text uses ' after the stressed vowel. `say` plays with the item, `sayAfter` after answering.
 const findCard = ru => { const k = strip(ru); const all = Object.values(CARDS); return all.find(c => c.deck === "intl" && strip(c.ru) === k) || all.find(c => strip(c.ru) === k); };
-const PICS = [["🥂","шампа'нское"],["📰","журна'л"],["🎬","фильм"],["🌷","тюльпа'н"],["💉","инъе'кция"],["🎪","цирк"],["🏟️","стадио'н"],["📻","ра'дио"],["🏃⚽","футболи'ст",1],["🍋","лимо'н"],["🍷","вино'"],["🎸","гита'ра"],["🌹","ро'за"],["🧑‍⚕️","до'ктор",1],["🍲","суп"],["🌳","парк"],["☕","ко'фе"],["🍌","бана'н"],["🛥️","я'хта"],["🗼","Пари'ж"],["🗽","Нью-Йо'рк"],["🎭","теа'тр"],["🚀","раке'та"],["🏫","шко'ла"],["👔","шеф",1],["🎵","но'та"],["🗺️","ка'рта"],["🧑🏆","актёр",1]];
-function poolPics() {
+const PICS_LESSON = [["🥂","шампа'нское"],["📰","журна'л"],["🎬","фильм"],["🌷","тюльпа'н"],["💉","инъе'кция"],["🎪","цирк"],["🏟️","стадио'н"],["📻","ра'дио"],["🏃⚽","футболи'ст",1],["🍋","лимо'н"],["🍷","вино'"],["🎸","гита'ра"],["🌹","ро'за"],["🧑‍⚕️","до'ктор",1],["🍲","суп"],["🌳","парк"],["☕","ко'фе"],["🍌","бана'н"],["🛥️","я'хта"],["🗼","Пари'ж"],["🗽","Нью-Йо'рк"],["🎭","теа'тр"],["🚀","раке'та"],["🏫","шко'ла"],["👔","шеф",1],["🎵","но'та"],["🗺️","ка'рта"],["🧑🏆","актёр",1]];
+function poolPics(PICS = PICS_LESSON) {
   const n = PICS.length, items = [];
   PICS.forEach(([pic, w, person], i) => {
     const c = findCard(w), card = c && c.id, pt = c ? c.pt : "";
@@ -800,12 +821,35 @@ function poolFamily() {
   FAM_BUILD.forEach(([pt, target, extra]) => items.push({ t: "build", ask: pt, target, extra, say: strip(target), why: "" }));
   return items;
 }
+const PICS_PLACES = [["🌊","океа'н"],["🇲🇽","Ме'ксика"],["🏖️","пляж"],["🏝️","о'стров"],["🏍️","мотоци'кл"],["🚗","маши'на"],["🍣","су'ши"],["🤖","ро'бот"],["🏔️","го'ры"],["🍫","шокола'д"],["⌚","часы'"]];
+const SIDES = [["🏍️","🚗","мотоци'кл","маши'на"],["🏝️","🏔️","о'стров","го'ры"],["🍣","🍫","су'ши","шокола'д"],["🤖","⌚","ро'бот","часы'"],["🌊","🏖️","океа'н","пляж"]];
+const AGREE = [["… рука'","пра'вая","пра'вый","пра'вое","рука' (mão) é feminino → пра'вая."],["… глаз","ле'вый","ле'вая","ле'вое","глаз (olho) é masculino → ле'вый."],["… окно'","пра'вое","пра'вый","пра'вая","окно' (janela) é neutro → пра'вое."],["… нога'","ле'вая","ле'вый","ле'вое","нога' (perna) é feminino → ле'вая."],["… бе'рег","пра'вый","пра'вая","пра'вое","бе'рег (margem) é masculino → пра'вый."]];
+const PLACES_BUILD = [["À direita um carro, à esquerda uma mota.","Спра'ва маши'на, сле'ва мотоци'кл.","пра'вый"],["É uma ilha ou uma praia?","Э'то о'стров и'ли пляж?","да"],["No México há oceano e montanhas.","В Ме'ксике есть океа'н и го'ры.","о'стров"],["Tenho um relógio.","У меня' есть часы'.","её"],["Não é chocolate, é sushi.","Э'то не шокола'д, э'то су'ши.","и'ли"],["É um robô?","Э'то ро'бот?","Кто"]];
+function poolPlaces() {
+  const items = poolPics(PICS_PLACES);
+  SIDES.forEach(([lp, rp, l, r]) => {
+    items.push({ t: "pick", pic: `${lp}   ${rp}`, ask: "Responde à pergunta", q: "Что спра'ва?", say: "Что справа?", opts: [`Спра'ва ${r}.`, `Спра'ва ${l}.`, `Сле'ва ${r}.`], sayAfter: `Справа ${strip(r)}.`, why: "спра'ва = à direita, сле'ва = à esquerda." });
+    items.push({ t: "pick", pic: `${lp}   ${rp}`, ask: "Responde à pergunta", q: "Что сле'ва?", say: "Что слева?", opts: [`Сле'ва ${l}.`, `Сле'ва ${r}.`, `Спра'ва ${l}.`], sayAfter: `Слева ${strip(l)}.`, why: "сле'ва = à esquerda, спра'ва = à direita." });
+    items.push({ t: "pick", pic: `${lp}   ${rp}`, ask: "Responde à pergunta", q: `Где ${r}?`, say: `Где ${strip(r)}?`, opts: ["Спра'ва.", "Сле'ва."], sayAfter: "Справа.", why: "где? = onde?" });
+  });
+  AGREE.forEach(([q, a, b, c, why]) => items.push({ t: "pick", ask: "Escolhe a forma certa", q, opts: [a, b, c], sayAfter: strip(a + " " + q.replace("… ", "")), why }));
+  [["direito","пра'вый","ле'вый"],["esquerdo","ле'вый","пра'вый"],["à direita","спра'ва","сле'ва"],["à esquerda","сле'ва","спра'ва"],["ilha","о'стров","пляж"],["praia","пляж","о'стров"],["montanhas","го'ры","часы'"],["relógio","часы'","го'ры"],["mota","мотоци'кл","маши'на"],["carro","маши'на","мотоци'кл"],["oceano","океа'н","о'стров"],["robô","ро'бот","мотоци'кл"]]
+    .forEach(([pt, a, b]) => items.push({ t: "pick", ask: `Como se diz «${pt}»?`, opts: [a, b], sayAfter: strip(a), card: findCard(a)?.id, why: "" }));
+  DECKS.find(d => d.id === "places").cards.forEach(c => {
+    if (/^[^\s-]+$/.test(c.ru) && (c.ru.match(/'/g) || []).length === 1 && syllables(c.ru).length > 1) items.push({ t: "stress", word: c.ru, ask: "Toca na sílaba tónica", say: c.say, why: c.pt, card: c.id });
+  });
+  const pl = PICS_PLACES.map(p => p[1]);
+  pl.forEach((w, i) => { const c = findCard(w); items.push({ t: "pick", listen: 1, ask: "O que ouviste?", say: strip(w), opts: [w, pl[(i + 1) % pl.length], pl[(i + 4) % pl.length]], why: c ? `${w} — ${c.pt}` : "", card: c?.id }); });
+  PLACES_BUILD.forEach(([pt, target, extra]) => items.push({ t: "build", ask: pt, target, extra, say: strip(target), why: "" }));
+  return items;
+}
 const EXERCISES = [
   { id: "pics", glyph: "Что?", title: "Что это? Imagens", scene: "Vês uma imagem e respondes: «Это…», «Да, это…», «Нет, это не…», «… или …?».", pool: poolPics },
   { id: "listen", glyph: "Слух", title: "Ouvir", scene: "Ouves e escolhes o que foi dito: полка ou полька? брат ou брать? Que número?", pool: poolListen },
   { id: "sounds", glyph: "О→А", title: "Sons e acento", scene: "Sílaba tónica, vogais átonas, grupos de letras e os sinais Ъ e Ь.", pool: poolSounds },
   { id: "dialog", glyph: "— Да!", title: "Diálogos", scene: "Completa os mini-diálogos da aula e escolhe o que dizer em cada situação.", pool: poolDialog },
   { id: "family", glyph: "Чья?", title: "Família e posse", scene: "У меня есть…, Чья это машина?, его e её. Escolhe respostas e constrói frases.", pool: poolFamily },
+  { id: "places", glyph: "Пляж", title: "Lugares e coisas", scene: "Пляж, остров, горы… Imagens, справа ou слева?, правый ou правая?, ouvir e construir frases.", pool: poolPlaces },
 ];
 EXERCISES.forEach(e => { e.items = e.pool(); });
 
