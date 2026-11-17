@@ -466,6 +466,20 @@ const DECKS = [
 вчера' | ontem | | ftcherA
 сего'дня | hoje | | sivOdnia
 `},
+{ id: "byl", section: "aula", glyph: "Было", title: "Был, была, было, были", scene: "O passado de «estar»: a forma muda conforme quem ou o quê (masculino, feminino, neutro, plural).", data: `
+был · была' · бы'ло · бы'ли | masculino · feminino · neutro · plural | он был, она' была', оно' бы'ло, они' бы'ли | byl · bylA · bYla · bYli
+он был | ele estava / esteve
+она' была' | ela estava / esteve | o acento passa para o fim: была'
+оно' бы'ло | estava (neutro) | оно' = coisas neutras: окно', кино'
+всё бы'ло хорошо' | estava tudo bem / correu tudo bem | всё (tudo) leva бы'ло | fsio bYla kharachO
+они' бы'ли | eles estavam / estiveram
+мы бы'ли | nós estávamos / estivemos
+вы бы'ли | vocês estavam / o senhor estava | вы leva sempre бы'ли
+вчера' бы'ло хо'лодно | ontem estava frio | sem sujeito → бы'ло | ftcherA bYla khOladna
+вчера' была' хоро'шая пого'да | ontem esteve bom tempo | пого'да é feminino → была' | ftcherA bylA kharOchaia pagOda
+где бы'ли де'ти? | onde estavam as crianças?
+часы' бы'ли до'ма | o relógio estava em casa | часы' é plural → бы'ли
+`},
 { id: "kids", glyph: "Мама", title: "Primeiras palavras", scene: "És uma criança pequena a aprender as tuas primeiras palavras.", data: `
 ма'ма | mãe
 па'па | pai
@@ -881,6 +895,34 @@ function poolPast() {
   PAST_BUILD.forEach(([pt, target, extra]) => items.push({ t: "build", ask: pt, target, extra, say: strip(target), why: "" }));
   return items;
 }
+const BYL = ["был", "была'", "бы'ло", "бы'ли"];
+const BYL_WHY = { "был": "masculino → был", "была'": "feminino → была' (acento no fim)", "бы'ло": "neutro, «всё» ou sem sujeito → бы'ло", "бы'ли": "plural (e вы) → бы'ли" };
+const BYL_PRON = [["он", "был", "он = ele"], ["она'", "была'", "она' = ela"], ["оно'", "бы'ло", "оно' = neutro (окно', кино')"], ["они'", "бы'ли", "они' = eles / elas"], ["мы", "бы'ли", "мы = nós → plural"],
+  ["вы", "бы'ли", "вы é sempre plural, mesmo a falar com uma só pessoa"], ["всё", "бы'ло", "всё (tudo) → бы'ло"], ["я (Марк)", "был", "o Marco é homem"], ["я (Ле'ра)", "была'", "a Lera é mulher"],
+  ["ты (Марк)", "был", "falas com um homem"], ["ты (Ле'ра)", "была'", "falas com uma mulher"], ["ма'ма", "была'", "ма'ма é mulher"], ["па'па", "был", "па'па é homem, apesar do -а"]];
+const BYL_NOUN = [["Вчера' … хоро'шая пого'да.", "была'", "пого'да termina em -а → feminino"], ["Вчера' … хо'лодно.", "бы'ло", "sem sujeito (está frio) → бы'ло"], ["Вчера' всё … хорошо'.", "бы'ло", "всё (tudo) → бы'ло"],
+  ["Где … де'ти?", "бы'ли", "де'ти é plural"], ["Где … часы'?", "бы'ли", "часы' é plural (como «óculos»)"], ["Где … маши'на?", "была'", "маши'на → feminino"], ["Где … компью'тер?", "был", "компью'тер termina em consoante → masculino"],
+  ["Где … ро'бот?", "был", "ро'бот → masculino"], ["Где … го'ры?", "бы'ли", "го'ры é plural"], ["Вчера' … дождь.", "был", "дождь → masculino"], ["Вчера' … тепло'.", "бы'ло", "sem sujeito (está calor) → бы'ло"],
+  ["Где … окно'?", "бы'ло", "окно' termina em -о → neutro"], ["Как … кино'?", "бы'ло", "кино' (cinema, filme) → neutro"], ["Где … роди'тели?", "бы'ли", "роди'тели é plural"], ["Вчера' … бокс.", "был", "бокс → masculino"],
+  ["Ле'ра … до'ма.", "была'", "a Lera é mulher"], ["Мы … на пля'же.", "бы'ли", "мы → plural"]];
+const BYL_GENDER = [["маши'на", "feminino"], ["компью'тер", "masculino"], ["окно'", "neutro"], ["часы'", "plural"], ["пого'да", "feminino"], ["дождь", "masculino"], ["де'ти", "plural"], ["кино'", "neutro"], ["шокола'д", "masculino"], ["го'ры", "plural"], ["ро'за", "feminino"], ["вино'", "neutro"]];
+const BYL_BUILD = [["Ela estava em casa.", "Она' была' до'ма.", "бы'ла"], ["Estava tudo bem.", "Всё бы'ло хорошо'.", "была'"], ["Ontem estava frio.", "Вчера' бы'ло хо'лодно.", "был"], ["Onde estavam as crianças?", "Где бы'ли де'ти?", "была'"],
+  ["O relógio estava em casa.", "Часы' бы'ли до'ма.", "был"], ["Ontem esteve bom tempo.", "Вчера' была' хоро'шая пого'да.", "бы'ло"], ["Ele estava no boxe.", "Он был на бо'ксе.", "была'"], ["Nós estávamos na praia.", "Мы бы'ли на пля'же.", "бы'ло"]];
+function poolByl() {
+  const items = [];
+  BYL_PRON.forEach(([who, a, why]) => items.push({ t: "pick", ask: "Escolhe a forma certa", q: `${who} …`, opts: [a, ...BYL.filter(x => x !== a)], sayAfter: strip(`${who.replace(/\s*\(.*\)/, "")} ${a}`), why }));
+  BYL_NOUN.forEach(([q, a, why]) => items.push({ t: "pick", ask: "Escolhe a forma certa", q, opts: [a, ...BYL.filter(x => x !== a)], sayAfter: strip(q.replace("…", a)), why }));
+  BYL_GENDER.forEach(([w, g]) => items.push({ t: "pick", ask: "Que género tem esta palavra?", q: w, ru: false, opts: [g, ...["masculino", "feminino", "neutro", "plural"].filter(x => x !== g)], say: strip(w),
+    why: `${g} → ${{ masculino: "был", feminino: "была'", neutro: "бы'ло", plural: "бы'ли" }[g]}. Regra: consoante = masc., -а/-я = fem., -о/-е = neutro, -ы/-и = plural.` }));
+  BYL.forEach(w => items.push({ t: "pick", listen: 1, ask: "O que ouviste?", say: strip(w), opts: [w, ...BYL.filter(x => x !== w)], why: `${w}: ${BYL_WHY[w]}` }));
+  [["Она' была' до'ма.", "Она' бы'ло до'ма."], ["Всё бы'ло хорошо'.", "Всё была' хорошо'."], ["Они' бы'ли на бо'ксе.", "Они' был на бо'ксе."], ["Он был до'ма.", "Он бы'ли до'ма."]].forEach(([a, b]) =>
+    items.push({ t: "pick", listen: 1, ask: "Qual destas frases ouviste?", say: strip(a), opts: [a, b], why: "" }));
+  ["была'", "бы'ло", "бы'ли"].forEach(w => items.push({ t: "stress", word: w, ask: "Toca na sílaba tónica", say: strip(w), why: BYL_WHY[w] }));
+  [["ela estava", "она' была'"], ["estava tudo bem", "всё бы'ло хорошо'"], ["eles estavam", "они' бы'ли"], ["ele estava", "он был"], ["ontem estava frio", "вчера' бы'ло хо'лодно"]].forEach(([pt, a], i, arr) =>
+    items.push({ t: "pick", ask: `Como se diz «${pt}»?`, opts: [a, ...arr.filter((_, j) => j !== i).slice(0, 2).map(x => x[1])], sayAfter: strip(a), card: findCard(a)?.id, why: "" }));
+  BYL_BUILD.forEach(([pt, target, extra]) => items.push({ t: "build", ask: pt, target, extra, say: strip(target), why: "" }));
+  return items;
+}
 const EXERCISES = [
   { id: "pics", glyph: "Что?", title: "Что это? Imagens", scene: "Vês uma imagem e respondes: «Это…», «Да, это…», «Нет, это не…», «… или …?».", pool: poolPics },
   { id: "listen", glyph: "Слух", title: "Ouvir", scene: "Ouves e escolhes o que foi dito: полка ou полька? брат ou брать? Que número?", pool: poolListen },
@@ -889,6 +931,7 @@ const EXERCISES = [
   { id: "family", glyph: "Чья?", title: "Família e posse", scene: "У меня есть…, Чья это машина?, его e её. Escolhe respostas e constrói frases.", pool: poolFamily },
   { id: "places", glyph: "Пляж", title: "Lugares e coisas", scene: "Пляж, остров, горы… Imagens, справа ou слева?, правый ou правая?, ouvir e construir frases.", pool: poolPlaces },
   { id: "past", glyph: "Вчера", title: "Ontem e o tempo", scene: "«Что ты делал вчера?» «Я был на боксе.» Passado em -л/-ла, o tempo, ouvir e construir frases.", pool: poolPast },
+  { id: "byl", glyph: "Было", title: "Был, была, было, были", scene: "Она была, оно было, всё было, они были: escolhe a forma, reconhece o género, ouve a diferença e constrói frases.", pool: poolByl },
 ];
 EXERCISES.forEach(e => { e.items = e.pool(); });
 
