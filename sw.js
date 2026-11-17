@@ -1,6 +1,6 @@
 // Offline support: the page is fetched fresh when online (falls back to cache offline);
 // audio, icons and fonts are cached the first time they are used.
-const CACHE = "azbuka-v4";
+const CACHE = "azbuka-v5";
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./", "index.html", "apple-touch-icon.png"])).then(() => self.skipWaiting()));
 });

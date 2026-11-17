@@ -457,6 +457,32 @@ const DECKS = [
 в Ме'ксике есть океа'н и го'ры | no México há oceano e montanhas
 у меня' есть часы' | tenho um relógio
 `},
+{ id: "past", section: "aula", glyph: "Вчера", title: "Ontem e o tempo", scene: "Contar o que fizeste ontem e hoje (passado em -л / -ла) e falar do tempo.", data: `
+пого'да | o tempo (meteorologia)
+кака'я сего'дня пого'да? | como está o tempo hoje? | | kakAia sivOdnia pagOda?
+сего'дня хоро'шая пого'да | hoje está bom tempo | | sivOdnia kharOchaia pagOda
+сего'дня плоха'я пого'да | hoje está mau tempo | | sivOdnia plakhAia pagOda
+тепло' | está calor (está quentinho)
+хо'лодно | está frio
+идёт дождь | está a chover
+что ты де'лал вчера'? | o que fizeste ontem? (a um homem) | | chto ty diElal ftcherA?
+что ты де'лала вчера'? | o que fizeste ontem? (a uma mulher) | | chto ty diElala ftcherA?
+я мно'го ду'мал | pensei muito (homem) | mulher: я мно'го ду'мала
+я был на бо'ксе | estive no boxe (homem) | mulher: я была' на бо'ксе
+сего'дня я за'втракал | hoje tomei o pequeno-almoço | mulher: сего'дня я за'втракала | sivOdnia ia zAftrakal
+я рабо'тал | trabalhei | mulher: я рабо'тала
+я чита'л | li | mulher: я чита'ла
+я отдыха'л | descansei | mulher: я отдыха'ла
+я гуля'л в па'рке | passeei no parque | mulher: я гуля'ла в па'рке
+я был до'ма | estive em casa | mulher: я была' до'ма
+бокс | boxe
+де'лать | fazer | passado: де'лал, де'лала, де'лали
+ду'мать | pensar | passado: ду'мал, ду'мала, ду'мали
+за'втракать | tomar o pequeno-almoço | | zAftrakat'
+был / была' / бы'ли | estive / esteve (ela) / estiveram | он был, она' была', они' бы'ли
+вчера' | ontem | | ftcherA
+сего'дня | hoje | | sivOdnia
+`},
 { id: "kids", glyph: "Мама", title: "Primeiras palavras", scene: "És uma criança pequena a aprender as tuas primeiras palavras.", data: `
 ма'ма | mãe
 па'па | pai
@@ -664,7 +690,7 @@ function translitWord(tok) {
     else if (c === "е") m = (!prev || VOW.includes(prev) || "ъь".includes(prev) || !/[а-яё]/.test(prev)) ? "ie" : (hasSt && !stressed && nV > 1) ? "i" : "e";
     else if (c === "ё") m = (!prev || VOW.includes(prev) || "ъь".includes(prev) || !/[а-яё]/.test(prev)) ? "io" : "io";
     else if (c === "о") m = (hasSt && !stressed && nV > 1) ? "a" : "o";
-    else if (c === "ь") m = VOW.includes(next) ? "" : "'";
+    else if (c === "ь") m = next && VOW.includes(next) ? "" : "'";
     else if (c === "с") m = (prev && next && VOW.includes(prev) && VOW.includes(next)) ? "ss" : "s";
     else if (c === "г") m = (ogo && lo.slice(i + 1).join("").replace(/[^а-яё]/g, "") === "о") ? "v" : ("еиёяю".includes(next) ? "gu" : "g");
     else m = TR[c] ?? c;
@@ -843,6 +869,35 @@ function poolPlaces() {
   PLACES_BUILD.forEach(([pt, target, extra]) => items.push({ t: "build", ask: pt, target, extra, say: strip(target), why: "" }));
   return items;
 }
+const DID = [["🥊","Я был на бо'ксе.","Estive no boxe."],["🤔","Я мно'го ду'мал.","Pensei muito."],["🍳☕","Я за'втракал.","Tomei o pequeno-almoço."],["💻","Я рабо'тал.","Trabalhei."],["📖","Я чита'л.","Li."],["🌳🚶","Я гуля'л в па'рке.","Passeei no parque."],["🏠","Я был до'ма.","Estive em casa."],["🛋️","Я отдыха'л.","Descansei."]];
+const WEATHER = [["☀️😊","Сего'дня хоро'шая пого'да.","Hoje está bom tempo."],["🌧️","Идёт дождь.","Está a chover."],["❄️🥶","Хо'лодно.","Está frio."],["🌤️🙂","Тепло'.","Está calor."],["⛈️😞","Сего'дня плоха'я пого'да.","Hoje está mau tempo."]];
+const PAST_FORM = [["Она' мно'го …","ду'мала","ду'мал","ду'мали","Ela → -ла."],["Он … на бо'ксе.","был","была'","бы'ли","Ele → был."],["Ма'ша вчера' мно'го …","рабо'тала","рабо'тал","рабо'тали","Ма'ша é mulher → -ла."],["Марк сего'дня …","за'втракал","за'втракала","за'втракали","Марк é homem → -л."],["Ле'ра, что ты … вчера'?","де'лала","де'лал","де'лали","Perguntas a uma mulher → де'лала."],["Мы … до'ма.","бы'ли","был","была'","Мы (nós) → plural -ли."],["Они' мно'го …","чита'ли","чита'л","чита'ла","Они' (eles) → plural -ли."],["Я (Ле'ра) … в па'рке.","гуля'ла","гуля'л","гуля'ли","Uma mulher fala de si → -ла."]];
+const PAST_BUILD = [["O que fizeste ontem?","Что ты де'лал вчера'?","сего'дня"],["Pensei muito.","Я мно'го ду'мал.","ду'мала"],["Estive no boxe.","Я был на бо'ксе.","была'"],["Hoje tomei o pequeno-almoço.","Сего'дня я за'втракал.","вчера'"],["Hoje está bom tempo.","Сего'дня хоро'шая пого'да.","плоха'я"],["Ontem estive em casa.","Вчера' я был до'ма.","бы'ли"],["Ela trabalhou muito.","Она' мно'го рабо'тала.","рабо'тал"],["Como está o tempo hoje?","Кака'я сего'дня пого'да?","Что"]];
+function poolPast() {
+  const items = [], n = DID.length;
+  DID.forEach(([pic, a, pt], i) => {
+    items.push({ t: "pick", pic, ask: "Responde à pergunta", q: "Что ты де'лал вчера'?", say: "Что ты делал вчера?", opts: [a, DID[(i + 1) % n][1], DID[(i + 3) % n][1]], sayAfter: strip(a), why: pt, card: findCard(a.replace(/\.$/, "").toLowerCase())?.id });
+    items.push({ t: "pick", ask: `Como se diz «${pt}»?`, opts: [a, DID[(i + 2) % n][1], DID[(i + 5) % n][1]], sayAfter: strip(a), why: "" });
+  });
+  WEATHER.forEach(([pic, a, pt], i) => items.push({ t: "pick", pic, ask: "Responde à pergunta", q: "Кака'я сего'дня пого'да?", say: "Какая сегодня погода?",
+    opts: [a, WEATHER[(i + 1) % WEATHER.length][1], WEATHER[(i + 2) % WEATHER.length][1]], sayAfter: strip(a), why: pt }));
+  PAST_FORM.forEach(([q, a, b, c, why]) => items.push({ t: "pick", ask: "Escolhe a forma certa", q, opts: [a, b, c], sayAfter: strip(q.replace("…", a)), why }));
+  [["— Что ты де'лал вчера'?\n— …", "Я был на бо'ксе.", "Я на бо'ксе за'втра.", "Э'то бокс.", "Pergunta no passado → resposta no passado."],
+   ["— Кака'я сего'дня пого'да?\n— …", "Сего'дня тепло'.", "Вчера' я ду'мал.", "Э'то пого'да.", "кака'я пого'да? = que tempo faz?"],
+   ["— Ле'ра, что ты де'лала вчера'?\n— …", "Я мно'го рабо'тала.", "Я мно'го рабо'тал.", "Ты мно'го рабо'тала.", "A Lera é mulher: рабо'тала."],
+   ["— Ты за'втракал сего'дня?\n— …", "Да, я за'втракал.", "Да, за'втра.", "Нет, пого'да.", "за'втракал = tomou o pequeno-almoço."],
+   ["— Где ты был вчера'?\n— …", "Я был до'ма.", "Я до'ма за'втра.", "Э'то дом.", "где ты был? = onde estiveste?"]]
+    .forEach(([q, a, b, c, why]) => items.push({ t: "pick", ask: "Completa o diálogo", q, say: strip(q.split("\n")[0].replace("— ", "")), opts: [a, b, c], sayAfter: strip(a), why }));
+  [["ontem", "вчера'", "сего'дня", "за'втра"], ["hoje", "сего'дня", "вчера'", "за'втра"], ["o tempo (meteorologia)", "пого'да", "рабо'та", "бокс"], ["está frio", "хо'лодно", "тепло'", "идёт дождь"], ["está a chover", "идёт дождь", "хо'лодно", "тепло'"]]
+    .forEach(([pt, a, b, c]) => items.push({ t: "pick", ask: `Como se diz «${pt}»?`, opts: [a, b, c], sayAfter: strip(a), card: findCard(a)?.id, why: "" }));
+  [["ду'мал", "ду'мала"], ["был", "была'"], ["де'лал", "де'лала"], ["рабо'тал", "рабо'тала"]].forEach(([m, f]) => [[m, f, "ele (homem)"], [f, m, "ela (mulher)"]].forEach(([w, o, who]) =>
+    items.push({ t: "pick", listen: 1, ask: "O que ouviste?", say: strip(w), opts: [w, o], why: `${w} — ${who}` })));
+  DECKS.find(d => d.id === "past").cards.forEach(c => {
+    if (/^[^\s\/-]+$/.test(c.ru) && (c.ru.match(/'/g) || []).length === 1 && syllables(c.ru).length > 1) items.push({ t: "stress", word: c.ru, ask: "Toca na sílaba tónica", say: c.say, why: c.pt, card: c.id });
+  });
+  PAST_BUILD.forEach(([pt, target, extra]) => items.push({ t: "build", ask: pt, target, extra, say: strip(target), why: "" }));
+  return items;
+}
 const EXERCISES = [
   { id: "pics", glyph: "Что?", title: "Что это? Imagens", scene: "Vês uma imagem e respondes: «Это…», «Да, это…», «Нет, это не…», «… или …?».", pool: poolPics },
   { id: "listen", glyph: "Слух", title: "Ouvir", scene: "Ouves e escolhes o que foi dito: полка ou полька? брат ou брать? Que número?", pool: poolListen },
@@ -850,6 +905,7 @@ const EXERCISES = [
   { id: "dialog", glyph: "— Да!", title: "Diálogos", scene: "Completa os mini-diálogos da aula e escolhe o que dizer em cada situação.", pool: poolDialog },
   { id: "family", glyph: "Чья?", title: "Família e posse", scene: "У меня есть…, Чья это машина?, его e её. Escolhe respostas e constrói frases.", pool: poolFamily },
   { id: "places", glyph: "Пляж", title: "Lugares e coisas", scene: "Пляж, остров, горы… Imagens, справа ou слева?, правый ou правая?, ouvir e construir frases.", pool: poolPlaces },
+  { id: "past", glyph: "Вчера", title: "Ontem e o tempo", scene: "«Что ты делал вчера?» «Я был на боксе.» Passado em -л/-ла, o tempo, ouvir e construir frases.", pool: poolPast },
 ];
 EXERCISES.forEach(e => { e.items = e.pool(); });
 
